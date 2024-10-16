@@ -1,8 +1,5 @@
 \c transact_db;
 
--- TRUNCATE TABLE User_table,Post_table, table_name3 RESTART IDENTITY CASCADE;
-
-
 -- Create the User table
 CREATE TABLE User_table (
     user_id SERIAL PRIMARY KEY,
