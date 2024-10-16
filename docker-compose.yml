@@ -1,0 +1,63 @@
+# version: '3.8'
+
+services:
+  transactional_db:
+    build:
+      context: ./transactional_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: transact_db
+      POSTGRES_USER: guest
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+
+  profile_service:
+    build:
+      context: ./services/profile_service
+    environment:
+      DB_HOST: transactional_db
+      DB_NAME: transact_db
+      DB_USER: guest
+      DB_PASSWORD: 1234
+    ports:
+      - "5002:5002"
+    depends_on:
+      - transactional_db
+
+  post_service:
+    build:
+      context: ./services/post_service
+    environment:
+      DB_HOST: transactional_db
+      DB_NAME: transact_db
+      DB_USER: guest
+      DB_PASSWORD: 1234
+      PROFILE_SERVICE_URL: http://profile_service:5002
+    ports:
+      - "5001:5001"
+    depends_on:
+      - transactional_db
+      - profile_service
+
+  feed_service:
+    build:
+      context: ./services/feed_service
+    environment:
+      DB_HOST: transactional_db
+      DB_NAME: transact_db
+      DB_USER: guest
+      DB_PASSWORD: 1234
+    ports:
+      - "5003:5003"
+    depends_on:
+      - transactional_db
+
+  redis_server:
+    image: redis:latest
+    container_name: redis_server
+    ports:
+      - "6379:6379"
+volumes:
+  db_data:
